@@ -1,1 +1,1 @@
-pribt("hello")World
+pribt("hello")
