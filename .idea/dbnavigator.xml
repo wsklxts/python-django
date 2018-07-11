@@ -39,6 +39,11 @@
     <connection id="c2df1ba4-d513-4b34-948e-1a4de8159b67" />
   </component>
   <component name="DBNavigator.Project.DatasetFilterManager">
+    <filter-list connection-id="c2df1ba4-d513-4b34-948e-1a4de8159b67" dataset="ll.ll_student" active-filter-id="5a88fa80-3184-43c0-b48d-d6c3aadb1274">
+      <filter id="5a88fa80-3184-43c0-b48d-d6c3aadb1274" name="Filter" temporary="false" custom-name="false" type="basic" join-type="AND">
+        <condition column="id" operator="=" value="" active="true" />
+      </filter>
+    </filter-list>
     <filter-list connection-id="c2df1ba4-d513-4b34-948e-1a4de8159b67" dataset="ll.ll_choice" active-filter-id="" />
     <filter-list connection-id="c2df1ba4-d513-4b34-948e-1a4de8159b67" dataset="ll.ll" active-filter-id="" />
   </component>
