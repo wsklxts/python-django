@@ -1,12 +1,7 @@
 from django.shortcuts import render
-
+from django.http import HttpResponse
 # Create your views here.
 
-print("hello")
-print("123456")
-print("123456")
-print("123456")
-print("123456")
-print("123456")
-print("123456")
-print("123456")
+def hello(request):
+    print(1111111111111111)
+    return HttpResponse("Hello world 12312aaaaaaaaaaaaaaaaaaa! ")
