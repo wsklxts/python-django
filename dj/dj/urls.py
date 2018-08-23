@@ -20,7 +20,7 @@ from ll.views import hello
 from ll.views import hello1
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path(r'h/', hello),
+    path('admin', admin.site.urls),
+    path(r'hello', hello),
     re_path(r".*", hello1),
 ]

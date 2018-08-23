@@ -3,10 +3,12 @@ from django.http import HttpResponse
 # Create your views here.
 
 def hello(request):
+    print(11111111111,request.GET["empName"])
     h="aaaaaaaaaaaaaaaaaaaaaaa"
     context = {'h': h,"abs":False}
     context['list']=[1,23,3,4,5,6,6,7]
-    return render(request,"hello.html",context)
+    return render(request,"h.html",context)
 
 def hello1(request):
+    print(request)
     return HttpResponse("hello1")
