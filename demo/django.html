@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="http://mat1.gtimg.com/libs/jquery/1.12.0/jquery.js"></script>
+</head>
+<body>
+
+<div class="vs" style="display:inline-block">
+    <h2>学生信息</h2>
+    <table border="1">
+      <thead>
+        <th>id</th>
+        <th>名字</th>
+        <th>年龄</th>
+        <th>删除</th>
+        <th>修改</th>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+</div>
+
+<div class="classesInof" style="display:inline-block">
+    <h2>班级信息</h2>
+    <table border="1">
+      <thead>
+        <th>id</th>
+        <th>班级名字</th>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+</div>
+
+<div class="teacherInof" style="display:inline-block">
+    <h2>老师信息</h2>
+    <table border="1">
+      <thead>
+        <th>id</th>
+        <th>老师名字</th>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+</div>
+
+
+
+<div class="student">
+    <p>学生姓名：<input type="text"></p>
+    <p>学生年龄：<input type="text"></p>
+    <p><button>提交</button></p>
+</div>
+<div class="classes">
+    <p>班级名字：<input type="text"></p>
+    <p><button>提交</button></p>
+</div>
+
+<div class="teacher">
+    <p>老师姓名：<input type="text"></p>
+    <p><button>提交</button></p>
+</div>
+
+
+
+<script>
+    $(function(){
+        $(".student").on("click","button",function(e){
+            var name=$(this).parent().parent().find("input").first().val()
+            var age=$(this).parent().parent().find("input").last().val()
+            var data={
+                age:age,
+                name:name
+            }
+            $.ajax({
+                url:"http://127.0.0.1:8000/student",
+                data:data,
+                tppe:"post",
+                dataType:"jsonp",
+                jsonp:"callback",
+                jsonpCallback:"callback",
+                success:function(v){
+                    var id=v.result.id
+                    var name=v.result.name
+                    var age=v.result.age
+                    if(v.status){
+                         var html=[
+                                "<tr id="+id+">",
+                                "<td>"+id+"</td>",
+                                "<td type='name' name='text'>"+name+"</td>",
+                                "<td type='age' name='text'>"+age+"</td>",
+                                "<td><button name='del'>删除</button></td>",
+                                "<td><button name='change'>修改</button></td>",
+                                "</tr>"
+                            ].join("")
+                            $(html).appendTo($(".vs").find("tbody"))
+                    }
+                }
+            })
+        })
+        getStudent()
+        function getStudent(){
+             $.ajax({
+                    url:"http://127.0.0.1:8000/vStudent",
+                    dataType:"jsonp",
+                    jsonp:"vStudent",
+                    jsonpCallback:"vStudent",
+                    success:function(v){
+                        console.log(v);
+                        v.forEach(function (i,v,a) {
+                            var html=[
+                                "<tr id="+i.id+">",
+                                "<td>"+i.id+"</td>",
+                                "<td type='name' name='text'>"+i.name+"</td>",
+                                "<td type='age' name='text'>"+i.age+"</td>",
+                                "<td><button name='del'>删除</button></td>",
+                                "<td><button name='change'>修改</button></td>",
+                                "</tr>"
+                            ].join("")
+                            $(html).appendTo($(".vs").find("tbody"))
+                        })
+                    }
+                })
+            }
+        $(".vs").on("click","button",function(){
+
+            var tr=$(this).parent().parent()
+            var trid=$(this).parent().parent().attr("id")
+
+            if($(this).attr("name")=="del"){
+                tr.remove()
+                $.ajax({
+                    url:"http://127.0.0.1:8000/removeStudent",
+                    data:{id:trid},
+                    dataType:"jsonp",
+                    jsonp:"callback",
+                    success:function(v){
+                        console.log(v);
+                    }
+                })
+            }else if($(this).attr("name")=="change"){
+                var text=tr.children("[name=text]")
+                var input='<input name="changeValue" type="text">'
+                var html=$(input)
+                var btn=$("<span><input type='button' name='confirm' value='确定'><input type='button' name='cancel' value='取消'></span>")
+                var oldValue=[]
+                if(text.eq(0).html()===input) return
+                $.each(text,function(i,v){
+                    oldValue.push($(v).html())
+                    var clone=html.clone()
+                    clone.val($(v).html())
+                    $(v).html(clone)
+                })
+                $(this).after(btn)
+                btn.on("click","input",function(){
+                    if($(this).attr("name")=="cancel"){
+                        $.each(text,function(i,v){
+                            $(v).html(oldValue[i])
+                        })
+                        $(this).parent().remove()
+                    }else if($(this).attr("name")=="confirm"){
+                        var name=tr.children("td[type=name]").children("input").val()
+                        var age=tr.children("td[type=age]").children("input").val()
+                        var allValue=[name,age]
+                        var data={
+                            id:trid,
+                            name:name,
+                            age:age,
+                        }
+                        var value=$(this).prev("input[name=changeValue]").val()
+                        var _this=$(this)
+                        $.ajax({
+                            url:"http://127.0.0.1:8000/changeStudent",
+                            data:data,
+                            dataType:"jsonp",
+                            jsonp:"callback",
+                            success:function(v){
+                               if(v){
+                                    $.each(text,function(i,v){
+                                        $(v).html(allValue[i])
+                                    })
+                                    _this.parent().remove()
+                               }
+                            }
+                        })
+                    }
+
+
+
+                })
+
+
+
+            }
+
+
+        })
+
+
+        $(".teacher").on("click","button",function(e){
+            var name=$(this).parent().parent().find("input").first().val()
+            var data={
+                name:name
+            }
+            $.ajax({
+                url:"http://127.0.0.1:8000/addTeacher",
+                data:data,
+                tppe:"post",
+                dataType:"jsonp",
+                jsonp:"callback",
+                jsonpCallback:"callback",
+                success:function(v){
+                    console.log(v);
+                    var id=v.result.id
+                    var name=v.result.name
+                    if(v.status){
+                         var html=[
+                                "<tr id="+id+">",
+                                "<td>"+id+"</td>",
+                                "<td type='name' name='text'>"+name+"</td>",
+                                "<td><button name='del'>删除</button></td>",
+                                "<td><button name='change'>修改</button></td>",
+                                "</tr>"
+                            ].join("")
+                            $(html).appendTo($(".teacherInof").find("tbody"))
+                    }
+                }
+            })
+        })
+        getTeacher()
+        function getTeacher(){
+             $.ajax({
+                    url:"http://127.0.0.1:8000/getTeacher",
+                    dataType:"jsonp",
+                    jsonp:"getTeacher",
+                    jsonpCallback:"getTeacher",
+                    success:function(v){
+                        v.forEach(function (i,v,a) {
+                            var html=[
+                                "<tr id="+i.id+">",
+                                "<td>"+i.id+"</td>",
+                                "<td type='name' name='text'>"+i.name+"</td>",
+                                "<td><button name='del'>删除</button></td>",
+                                "<td><button name='change'>修改</button></td>",
+                                "</tr>"
+                            ].join("")
+                            $(html).appendTo($(".teacherInof").find("tbody"))
+                        })
+                    }
+                })
+            }
+        $(".teacherInof").on("click","button",function(){
+
+            var tr=$(this).parent().parent()
+            var trid=$(this).parent().parent().attr("id")
+
+            if($(this).attr("name")=="del"){
+                tr.remove()
+                $.ajax({
+                    url:"http://127.0.0.1:8000/removeTeacher",
+                    data:{id:trid},
+                    dataType:"jsonp",
+                    jsonp:"callback",
+                    success:function(v){
+                        console.log(v);
+                    }
+                })
+            }else if($(this).attr("name")=="change"){
+                var text=tr.children("[name=text]")
+                var input='<input name="changeValue" type="text">'
+                var html=$(input)
+                var btn=$("<span><input type='button' name='confirm' value='确定'><input type='button' name='cancel' value='取消'></span>")
+                var oldValue=[]
+                if(text.eq(0).html()===input) return
+                $.each(text,function(i,v){
+                    oldValue.push($(v).html())
+                    var clone=html.clone()
+                    clone.val($(v).html())
+                    $(v).html(clone)
+                })
+                $(this).after(btn)
+                btn.on("click","input",function(){
+                    if($(this).attr("name")=="cancel"){
+                        $.each(text,function(i,v){
+                            $(v).html(oldValue[i])
+                        })
+                        $(this).parent().remove()
+                    }else if($(this).attr("name")=="confirm"){
+                        var name=tr.children("td[type=name]").children("input").val()
+                        var allValue=[name]
+                        var data={
+                            id:trid,
+                            name:name,
+                        }
+                        var _this=$(this)
+                        $.ajax({
+                            url:"http://127.0.0.1:8000/changeTeacher",
+                            data:data,
+                            dataType:"jsonp",
+                            jsonp:"callback",
+                            success:function(v){
+                               if(v){
+                                    $.each(text,function(i,v){
+                                        $(v).html(allValue[i])
+                                    })
+                                    _this.parent().remove()
+                               }
+                            }
+                        })
+                    }
+
+
+
+                })
+
+
+
+            }
+
+
+        })
+
+
+
+        $(".classes").on("click","button",function(e){
+        var name=$(this).parent().parent().find("input").first().val()
+        var data={
+            name:name
+        }
+        $.ajax({
+            url:"http://127.0.0.1:8000/addClasses",
+            data:data,
+            tppe:"post",
+            dataType:"jsonp",
+            jsonp:"classes",
+            jsonpCallback:"classes",
+            success:function(v){
+                var id=v.result.id
+                var name=v.result.name
+                var age=v.result.age
+                if(v.status){
+                     var html=[
+                            "<tr id="+id+">",
+                            "<td>"+id+"</td>",
+                            "<td type='name' name='text'>"+name+"</td>",
+                            "<td><button name='del'>删除</button></td>",
+                            "<td><button name='change'>修改</button></td>",
+                            "</tr>"
+                        ].join("")
+                        $(html).appendTo($(".classesInof").find("tbody"))
+                }
+            }
+        })
+    })
+        getClasees()
+        function getClasees(){
+         $.ajax({
+                url:"http://127.0.0.1:8000/getClasees",
+                dataType:"jsonp",
+                jsonp:"getClasees",
+                jsonpCallback:"getClasees",
+                success:function(v){
+                    console.log(v);
+                    v.forEach(function (i,v,a) {
+                        var html=[
+                            "<tr id="+i.id+">",
+                            "<td>"+i.id+"</td>",
+                            "<td type='name' name='text'>"+i.name+"</td>",
+                            "<td><button name='del'>删除</button></td>",
+                            "<td><button name='change'>修改</button></td>",
+                            "</tr>"
+                        ].join("")
+                        $(html).appendTo($(".classesInof").find("tbody"))
+                    })
+                }
+            })
+    }
+        $(".classesInof").on("click","button",function(){
+
+        var tr=$(this).parent().parent()
+        var trid=$(this).parent().parent().attr("id")
+
+        if($(this).attr("name")=="del"){
+            tr.remove()
+            $.ajax({
+                url:"http://127.0.0.1:8000/removeClasses",
+                data:{id:trid},
+                dataType:"jsonp",
+                jsonp:"callback",
+                success:function(v){
+                    console.log(v);
+                }
+            })
+        }else if($(this).attr("name")=="change"){
+            var text=tr.children("[name=text]")
+            var input='<input name="changeValue" type="text">'
+            var html=$(input)
+            var btn=$("<span><input type='button' name='confirm' value='确定'><input type='button' name='cancel' value='取消'></span>")
+            var oldValue=[]
+            if(text.eq(0).html()===input) return
+            $.each(text,function(i,v){
+                oldValue.push($(v).html())
+                var clone=html.clone()
+                clone.val($(v).html())
+                $(v).html(clone)
+            })
+            $(this).after(btn)
+            btn.on("click","input",function(){
+                if($(this).attr("name")=="cancel"){
+                    $.each(text,function(i,v){
+                        $(v).html(oldValue[i])
+                    })
+                    $(this).parent().remove()
+                }else if($(this).attr("name")=="confirm"){
+                    var name=tr.children("td[type=name]").children("input").val()
+                    var allValue=[name]
+                    var data={
+                        id:trid,
+                        name:name,
+                    }
+                    var _this=$(this)
+                    $.ajax({
+                        url:"http://127.0.0.1:8000/changeClasses",
+                        data:data,
+                        dataType:"jsonp",
+                        jsonp:"changeClasses",
+                        success:function(v){
+                            if(v){
+                                $.each(text,function(i,v){
+                                    $(v).html(allValue[i])
+                                })
+                                _this.parent().remove()
+                           }
+                        }
+                    })
+                }
+
+
+
+            })
+
+
+
+        }
+
+
+    })
+
+
+    })
+</script>
+
+</body>
+</html>

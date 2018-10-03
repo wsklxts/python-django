@@ -17,10 +17,32 @@ from django.contrib import admin
 from django.urls import path,re_path
 
 from ll.views import hello
-from ll.views import hello1
+from ll.views import student
+from ll.views import vStudent
+from ll.views import removeStudent
+from ll.views import changeStudent
+from ll.views import addClasses
+from ll.views import getClasees
+from ll.views import removeClasses
+from ll.views import changeClasses
+from ll.views import addTeacher
+from ll.views import getTeacher
+from ll.views import removeTeacher
+from ll.views import changeTeacher
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path(r'h/', hello),
-    re_path(r".*", hello1),
+    path(r'student', student),
+    path(r'vStudent', vStudent),
+    path(r'removeStudent', removeStudent),
+    path(r'changeStudent', changeStudent),
+    path(r'addClasses', addClasses),
+    path(r'getClasees', getClasees),
+    path(r'removeClasses', removeClasses),
+    path(r'changeClasses', changeClasses),
+    path(r'addTeacher', addTeacher),
+    path(r'getTeacher', getTeacher),
+    path(r'removeTeacher', removeTeacher),
+    path(r'changeTeacher', changeTeacher),
+    re_path(r".*", hello),
 ]
