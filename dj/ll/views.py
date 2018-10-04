@@ -23,9 +23,9 @@ def changeStudent(request):
     age = request.GET.get("age")
     name = request.GET.get("name")
     id = request.GET.get("id")
-
-    result=mysql.change("update ll_student set name=%s,age=%s WHERE id=%s", [name,age,id])
-
+    csid = request.GET.get("csid")
+    result=mysql.change("update ll_student set name=%s,age=%s,csid_id=%s WHERE id=%s", [name,age,csid,id,])
+    print(result)
     return HttpResponse(callback + "(" + json.dumps(result) + ")")
 
 def removeStudent(request):
@@ -42,9 +42,12 @@ def removeStudent(request):
     return HttpResponse(callback+"("+str(result)+")")
 
 def vStudent(request):
-    result = mysql.view("select * from ll_student",[])
+    # result = mysql.view("select * from ll_student",[])
+    result = mysql.view("select st.id,st.age,st.name,cs.name as csname from ll_student as st left join ll_classes as cs on st.csid_id=cs.id",[])
     callback=request.GET.get("vStudent")
-    http = HttpResponse(callback+"("+json.dumps(list(result))+")")
+    # allClasses = mysql.view("select * from ll_classes", [])
+    http = HttpResponse(callback+"("+json.dumps(result)+")")
+
     return http
 
 def student(request):
@@ -52,14 +55,18 @@ def student(request):
     callback=request.GET.get("callback")
     name=request.GET.get("name")
     age=request.GET.get("age")
+    cs=request.GET.get("cs")
 
-    status =mysql.change("insert into ll_student(name,age) values(%s,%s)", [name,age])
-    result = mysql.view("select * from ll_student order by id DESC limit 1", [])[0]
+
+
+    status =mysql.change("insert into ll_student(name,age,csid_id) values(%s,%s,%s)", [name,age,cs])
+    result = mysql.view("select id,name,age from ll_student order by id DESC limit 1", [])[0]
+    classesId = mysql.view("select * from ll_classes where id=%s", [cs,])[0]
+    result["classes"]=classesId
     allresult={
         "status":status,
         "result":result
     }
-
     return HttpResponse(callback+'( '+json.dumps(allresult)+' )')
     # return HttpResponse(callback+'( "aa" )')
 
@@ -105,9 +112,17 @@ def addClasses(request):
 
 def getClasees(request):
     result = mysql.view("select * from ll_classes", [])
+    telist = mysql.view("select * from ll_teacher", [])
+    relationCs = mysql.view("select cs.id, group_concat(te.id) as teid, cs.name, group_concat(te.name) as telist  from ll_teacher as te  JOIN ll_classes_classestoteacher as cste on te.id=cste.teacher_id  JOIN ll_classes as cs on cs.id=cste.classes_id GROUP BY cs.name", [])
     callback = request.GET.get("getClasees")
-
-    return HttpResponse(callback + "(" + json.dumps(list(result)) + ")")
+    print(relationCs)
+    print(result)
+    allResult={
+        "classes":result,
+        "relationCs":relationCs,
+        "telist":telist
+    }
+    return HttpResponse(callback + "(" + json.dumps(allResult) + ")")
 
 
 

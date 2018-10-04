@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-    <script src="http://mat1.gtimg.com/libs/jquery/1.12.0/jquery.js"></script>
+    <!--<script src="http://mat1.gtimg.com/libs/jquery/1.12.0/jquery.js"></script>-->
+    <script src="../utils/jquery.js"></script>
 </head>
 <body>
 
@@ -14,6 +15,7 @@
         <th>id</th>
         <th>名字</th>
         <th>年龄</th>
+        <th>班级</th>
         <th>删除</th>
         <th>修改</th>
       </thead>
@@ -28,10 +30,14 @@
       <thead>
         <th>id</th>
         <th>班级名字</th>
+        <th>任课老师</th>
       </thead>
       <tbody>
       </tbody>
     </table>
+    <div class="telistWrap">
+
+    </div>
 </div>
 
 <div class="teacherInof" style="display:inline-block">
@@ -51,6 +57,16 @@
 <div class="student">
     <p>学生姓名：<input type="text"></p>
     <p>学生年龄：<input type="text"></p>
+    <p>所属班级</p>
+
+    <div class="cslist">
+        <!--<label for="cs1">班级</label>-->
+        <!--<input type="checkbox" id="cs1">-->
+    </div>
+
+
+
+
     <p><button>提交</button></p>
 </div>
 <div class="classes">
@@ -67,12 +83,23 @@
 
 <script>
     $(function(){
+
+        var allcslist=[]
+
+
         $(".student").on("click","button",function(e){
-            var name=$(this).parent().parent().find("input").first().val()
-            var age=$(this).parent().parent().find("input").last().val()
+            var checked
+            $.each($(".cslist input"),function (i,v) {
+                if(v.checked){
+                    checked=v.value
+                }
+            })
+            var name=$(this).parent().parent().find("input[type=text]").first().val()
+            var age=$(this).parent().parent().find("input[type=text]").last().val()
             var data={
                 age:age,
-                name:name
+                name:name,
+                cs:checked
             }
             $.ajax({
                 url:"http://127.0.0.1:8000/student",
@@ -82,6 +109,7 @@
                 jsonp:"callback",
                 jsonpCallback:"callback",
                 success:function(v){
+
                     var id=v.result.id
                     var name=v.result.name
                     var age=v.result.age
@@ -91,6 +119,7 @@
                                 "<td>"+id+"</td>",
                                 "<td type='name' name='text'>"+name+"</td>",
                                 "<td type='age' name='text'>"+age+"</td>",
+                                "<td type='age' name='text'>"+v.result.classes.name+"</td>",
                                 "<td><button name='del'>删除</button></td>",
                                 "<td><button name='change'>修改</button></td>",
                                 "</tr>"
@@ -108,13 +137,13 @@
                     jsonp:"vStudent",
                     jsonpCallback:"vStudent",
                     success:function(v){
-                        console.log(v);
                         v.forEach(function (i,v,a) {
                             var html=[
                                 "<tr id="+i.id+">",
                                 "<td>"+i.id+"</td>",
                                 "<td type='name' name='text'>"+i.name+"</td>",
                                 "<td type='age' name='text'>"+i.age+"</td>",
+                                "<td type='cslist' name='text'>"+i.csname+"</td>",
                                 "<td><button name='del'>删除</button></td>",
                                 "<td><button name='change'>修改</button></td>",
                                 "</tr>"
@@ -146,13 +175,35 @@
                 var html=$(input)
                 var btn=$("<span><input type='button' name='confirm' value='确定'><input type='button' name='cancel' value='取消'></span>")
                 var oldValue=[]
+                 var cslistHtml="" +
+                    "<select>" +
+                    "<option value=''></option>" +
+                    "</select>"
                 if(text.eq(0).html()===input) return
                 $.each(text,function(i,v){
                     oldValue.push($(v).html())
                     var clone=html.clone()
                     clone.val($(v).html())
                     $(v).html(clone)
+                    var vv=$(v)
+                    var selhtml=[]
+                    if($(v).attr("type")=="cslist"){
+                        $(allcslist).each(function(i,v){
+                           var op=$("<option value="+v.id+">"+v.name+"</option>")
+                             if(oldValue[oldValue.length-1] == v.name)
+                                op.attr("selected","selected")
+                            else
+                                op.removeAttr("selected")
+                            selhtml.push(op)
+                        })
+                        var sel=$("<select></select>").html(selhtml)
+                        vv.html(sel)
+                    }
                 })
+
+
+                tr.children("[type=cslist]").html()
+
                 $(this).after(btn)
                 btn.on("click","input",function(){
                     if($(this).attr("name")=="cancel"){
@@ -163,11 +214,14 @@
                     }else if($(this).attr("name")=="confirm"){
                         var name=tr.children("td[type=name]").children("input").val()
                         var age=tr.children("td[type=age]").children("input").val()
+                        var select=tr.children("td[type=cslist]").children("select").val()
+
                         var allValue=[name,age]
                         var data={
                             id:trid,
                             name:name,
                             age:age,
+                            csid:select
                         }
                         var value=$(this).prev("input[name=changeValue]").val()
                         var _this=$(this)
@@ -186,12 +240,7 @@
                             }
                         })
                     }
-
-
-
                 })
-
-
 
             }
 
@@ -355,6 +404,7 @@
         })
     })
         getClasees()
+        var telist
         function getClasees(){
          $.ajax({
                 url:"http://127.0.0.1:8000/getClasees",
@@ -362,24 +412,52 @@
                 jsonp:"getClasees",
                 jsonpCallback:"getClasees",
                 success:function(v){
-                    console.log(v);
-                    v.forEach(function (i,v,a) {
-                        var html=[
+                    var relationCs=v.relationCs
+                    telist=v.telist
+                    v.classes.forEach(function (i,v,a) {
+                        allcslist.push(i)
+
+                        var cslist=[
+                            '<label for=cs'+i.id+'>'+i.name+'</label>',
+                            '<input name="cs" type="radio" id=cs'+i.id+' value='+i.id+'>'
+                        ].join("")
+                        $(".cslist").append(cslist)
+                        function html(value,teid){
+                            return [
                             "<tr id="+i.id+">",
                             "<td>"+i.id+"</td>",
                             "<td type='name' name='text'>"+i.name+"</td>",
+                            "<td  type='name' name='text'>"+value+"</td>",
                             "<td><button name='del'>删除</button></td>",
                             "<td><button name='change'>修改</button></td>",
+                            "<td><button teid="+teid+  "  name='assign'>分配老师</button></td>",
                             "</tr>"
-                        ].join("")
-                        $(html).appendTo($(".classesInof").find("tbody"))
+                            ].join("")
+                        }
+                        var renderHtml
+                          if(relationCs[v]){
+                              for(var k=0;k<relationCs.length;k++){
+                                  if(relationCs[k].id==i.id){
+                                    renderHtml=html(relationCs[v].telist,relationCs[v].teid)
+                                    $(renderHtml).appendTo($(".classesInof").find("tbody"))
+                                  }
+                              }
+                        }else{
+                              renderHtml=html("","-1")
+                              $(renderHtml).appendTo($(".classesInof").find("tbody"))
+                          }
+
+
+
                     })
                 }
             })
     }
+
+        var telisthtml=""
         $(".classesInof").on("click","button",function(){
 
-        var tr=$(this).parent().parent()
+            var tr=$(this).parent().parent()
         var trid=$(this).parent().parent().attr("id")
 
         if($(this).attr("name")=="del"){
@@ -408,6 +486,7 @@
             })
             $(this).after(btn)
             btn.on("click","input",function(){
+
                 if($(this).attr("name")=="cancel"){
                     $.each(text,function(i,v){
                         $(v).html(oldValue[i])
@@ -436,12 +515,38 @@
                         }
                     })
                 }
-
-
-
             })
 
+        }else if($(this).attr("name")=="assign"){
+            var teid= $(this).attr("teid").split(",");
+            telisthtml=$("<div class='telist'>" +
+                "<h2>老师列表</h2>" +
+                "</div>")
 
+            console.log(teid);
+            console.log(telist);
+            var checkbox=""
+
+            $.each(telist,function (i,v) {
+                 function checkboxfn(checked){
+                  return "" +
+                    "<span>" +
+                    "<label for=te"+v.id+">"+v.name+"</label>" +
+                    "<input type='checkbox' "+checked+" id=te"+v.id+" value="+v.id+" name=te"+v.id+">" +
+                    "</span>"
+                }
+                if($.inArray(v.id.toString(),teid) != -1){
+                    checkbox=checkboxfn("checked")
+                }else{
+                    checkbox=checkboxfn(" ")
+                }
+
+                telisthtml.append(checkbox)
+            })
+            var btn=$("<p><button>确定</button><button>取消</button></p>")
+            telisthtml.append(btn)
+
+            $(".classesInof .telistWrap").html(telisthtml)
 
         }
 
