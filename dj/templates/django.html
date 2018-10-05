@@ -5,6 +5,11 @@
     <title>Title</title>
     <!--<script src="http://mat1.gtimg.com/libs/jquery/1.12.0/jquery.js"></script>-->
     <script src="../utils/jquery.js"></script>
+    <style>
+        .telist span{
+            margin:10px
+        }
+    </style>
 </head>
 <body>
 
@@ -306,14 +311,16 @@
             var trid=$(this).parent().parent().attr("id")
 
             if($(this).attr("name")=="del"){
-                tr.remove()
+
                 $.ajax({
                     url:"http://127.0.0.1:8000/removeTeacher",
                     data:{id:trid},
                     dataType:"jsonp",
                     jsonp:"callback",
                     success:function(v){
-                        console.log(v);
+                        if(v.status){
+                            tr.remove()
+                        }
                     }
                 })
             }else if($(this).attr("name")=="change"){
@@ -413,42 +420,37 @@
                 jsonpCallback:"getClasees",
                 success:function(v){
                     var relationCs=v.relationCs
+                    for(var i=0;i<relationCs.length;i++){
+                        for(var j=0;j<v.classes.length;j++){
+                            if(relationCs[i].id==v.classes[j].id){
+                                Object.assign(v.classes[j],relationCs[i])
+                            }
+                        }
+                    }
                     telist=v.telist
                     v.classes.forEach(function (i,v,a) {
                         allcslist.push(i)
-
                         var cslist=[
                             '<label for=cs'+i.id+'>'+i.name+'</label>',
                             '<input name="cs" type="radio" id=cs'+i.id+' value='+i.id+'>'
                         ].join("")
                         $(".cslist").append(cslist)
                         function html(value,teid){
+                            value = value || ""
+                            teid = teid || null
                             return [
                             "<tr id="+i.id+">",
                             "<td>"+i.id+"</td>",
                             "<td type='name' name='text'>"+i.name+"</td>",
-                            "<td  type='name' name='text'>"+value+"</td>",
+                            "<td  type='classes' name='text'>"+value+"</td>",
                             "<td><button name='del'>删除</button></td>",
                             "<td><button name='change'>修改</button></td>",
                             "<td><button teid="+teid+  "  name='assign'>分配老师</button></td>",
                             "</tr>"
                             ].join("")
                         }
-                        var renderHtml
-                          if(relationCs[v]){
-                              for(var k=0;k<relationCs.length;k++){
-                                  if(relationCs[k].id==i.id){
-                                    renderHtml=html(relationCs[v].telist,relationCs[v].teid)
-                                    $(renderHtml).appendTo($(".classesInof").find("tbody"))
-                                  }
-                              }
-                        }else{
-                              renderHtml=html("","-1")
-                              $(renderHtml).appendTo($(".classesInof").find("tbody"))
-                          }
-
-
-
+                            var renderHtml=html(i.telist,i.teid)
+                            $(renderHtml).appendTo($(".classesInof").find("tbody"))
                     })
                 }
             })
@@ -456,12 +458,11 @@
 
         var telisthtml=""
         $(".classesInof").on("click","button",function(){
-
             var tr=$(this).parent().parent()
         var trid=$(this).parent().parent().attr("id")
 
-        if($(this).attr("name")=="del"){
-            tr.remove()
+            if($(this).attr("name")=="del"){
+
             $.ajax({
                 url:"http://127.0.0.1:8000/removeClasses",
                 data:{id:trid},
@@ -469,6 +470,9 @@
                 jsonp:"callback",
                 success:function(v){
                     console.log(v);
+                    if(v.status){
+                        tr.remove()
+                    }
                 }
             })
         }else if($(this).attr("name")=="change"){
@@ -518,21 +522,20 @@
             })
 
         }else if($(this).attr("name")=="assign"){
-            var teid= $(this).attr("teid").split(",");
+
+                var teid= $(this).attr("teid").split(",");
             telisthtml=$("<div class='telist'>" +
                 "<h2>老师列表</h2>" +
                 "</div>")
 
-            console.log(teid);
-            console.log(telist);
             var checkbox=""
 
             $.each(telist,function (i,v) {
-                 function checkboxfn(checked){
+                function checkboxfn(checked){
                   return "" +
                     "<span>" +
                     "<label for=te"+v.id+">"+v.name+"</label>" +
-                    "<input type='checkbox' "+checked+" id=te"+v.id+" value="+v.id+" name=te"+v.id+">" +
+                    "<input html="+v.name+" type='checkbox' "+checked+" id=te"+v.id+" value="+v.id+" name=te"+v.id+">" +
                     "</span>"
                 }
                 if($.inArray(v.id.toString(),teid) != -1){
@@ -543,7 +546,41 @@
 
                 telisthtml.append(checkbox)
             })
-            var btn=$("<p><button>确定</button><button>取消</button></p>")
+            var btn=$("<p><button class='confirm'>确定</button><button class='cencel'>取消</button></p>")
+            btn.on("click","button",function (e) {
+                if($(this).hasClass("confirm")){
+                    var allte=$(this).parents(".telist").children("span").children("input");
+                    var allteId=[]
+                    var allteVal=[]
+                    $.each(allte,function (i,v) {
+                       if($(v).prop("checked")){
+                           allteId.push($(v).val())
+                           allteVal.push($(v).attr("html"))
+                       }
+                    })
+                    var data={
+                        "csid":trid,
+                        "teId":allteId
+                    }
+                    $.ajax({
+                        url:"http://127.0.0.1:8000/assignTeacher",
+                        data:data,
+                        dataType:"jsonp",
+                        jsonp:"assignTeacher",
+                        traditional:true,
+                        success:function(v){
+                            if(v){
+                                var str=allteVal.join(",")
+                                tr.children("td[type=classes]").html(str)
+                                $(".classesInof .telistWrap").html("")
+                            }
+                        }
+                    })
+
+                }else if($(this).hasClass("cencel")){
+                    $(".classesInof .telistWrap").html("")
+                }
+            })
             telisthtml.append(btn)
 
             $(".classesInof .telistWrap").html(telisthtml)

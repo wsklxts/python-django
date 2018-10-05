@@ -29,6 +29,7 @@ from ll.views import addTeacher
 from ll.views import getTeacher
 from ll.views import removeTeacher
 from ll.views import changeTeacher
+from ll.views import assignTeacher
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -44,5 +45,6 @@ urlpatterns = [
     path(r'getTeacher', getTeacher),
     path(r'removeTeacher', removeTeacher),
     path(r'changeTeacher', changeTeacher),
+    path(r'assignTeacher', assignTeacher),
     re_path(r".*", hello),
 ]

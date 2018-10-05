@@ -89,13 +89,14 @@ def removeClasses(request):
     uid = request.GET.get("id")
     callback = request.GET.get("callback")
 
-    mysql.change("delete from ll_classes where id=%s", [uid, ])
+    res= mysql.change("delete from ll_classes where id=%s", [uid, ])
 
     result = {
-        "status": "成功"
+        "status": res
     }
+    print(result)
 
-    return HttpResponse(callback + "(" + str(result) + ")")
+    return HttpResponse(callback + "(" + json.dumps(result) + ")")
 
 def addClasses(request):
     callback = request.GET.get("classes")
@@ -125,6 +126,24 @@ def getClasees(request):
     return HttpResponse(callback + "(" + json.dumps(allResult) + ")")
 
 
+def assignTeacher(request):
+    callback = request.GET.get("assignTeacher")
+    teIds = request.GET.getlist("teId")
+    csid = request.GET.get("csid")
+
+
+    manyVal = []
+    for i in teIds:
+        manyVal.append((csid,i))
+
+    print(manyVal)
+    mysql.change("delete from ll_classes_classestoteacher where classes_id=%s", [csid,])
+    result = mysql.manyChange("insert into ll_classes_classestoteacher(classes_id,teacher_id) values(%s,%s)", manyVal)
+
+
+    return HttpResponse(callback + "(" + json.dumps(result) + ")")
+    # return HttpResponse(callback + "('aa')")
+
 
 def changeTeacher(request):
     callback = request.GET.get("callback")
@@ -139,14 +158,14 @@ def removeTeacher(request):
     uid = request.GET.get("id")
     callback = request.GET.get("callback")
 
-    mysql.change("delete from ll_teacher where id=%s",[uid,])
+    res=mysql.change("delete from ll_teacher where id=%s",[uid,])
 
     result={
-        "status":"成功"
+        "status":res
     }
 
 
-    return HttpResponse(callback+"("+str(result)+")")
+    return HttpResponse(callback+"("+json.dumps(result)+")")
 
 def getTeacher(request):
     result = mysql.view("select * from ll_teacher",[])

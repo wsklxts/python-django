@@ -15,5 +15,4 @@ class teacher(models.Model):
 class student(models.Model):
     name = models.CharField(max_length=32)
     age = models.CharField(max_length=32,default="0")
-    csid = models.ForeignKey(classes,on_delete=None)
-
+    csid = models.ForeignKey(classes,on_delete=models.CASCADE)
