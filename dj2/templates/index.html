@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../static/jquery.js"></script>
+    <script src="../static/urlParam.js"></script>
+    <!--<script src="../static/csrf.js"></script>-->
+</head>
+<body>
+
+<input type="button" value="上一页">
+<input type="button" value="下一页">
+
+
+<script>
+
+
+    var url = "http://127.0.0.1:8002"
+    $(function () {
+        var ul = $("<ul></ul>")
+        var pageIndex = 1, pageSize = 10
+        $("input:first").click(function () {
+
+        })
+        $("input:last").click(function () {
+            pageIndex += 1
+            renderData(pageIndex, pageSize)
+            // var url = window.location.href;
+            // var newUrl = changeURLArg(url, "pageIndex", pageIndex);
+            // window.history.pushState({}, "", newUrl);
+            //  location.search = "page=" + pageIndex
+        })
+
+        renderData(pageIndex, pageSize)
+
+        function renderData(pageIndex, pageSize) {
+            // location.search = "page=" + pageIndex
+            $.ajax({
+                url: url + "/page/",
+                data: {"pageIndex": pageIndex, "pageSize": pageSize},
+                type: "get",
+                success: function (d) {
+                    console.log(d);
+
+                    d.arr = []
+                    $.each(d, function (i, v) {
+                        d.arr.push($("<li>" + v.name + "</li>"))
+                    })
+                    ul.html(d.arr)
+                    ul.appendTo("body")
+                }
+            })
+        }
+
+
+    })
+
+
+</script>
+
+
+</body>
+</html>
