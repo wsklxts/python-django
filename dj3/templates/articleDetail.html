@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../static/jquery.js"></script>
+    <script src="../static/common.js"></script>
+</head>
+<body>
+
+<div class="article">
+    <div class="list"></div>
+</div>
+
+
+<script>
+
+
+    var id = $.getUrlParam("id")
+    var temp = '<div class="article">' +
+            '<p>{{title}}</p>' +
+            '<p>{{content}}</p>' +
+            '<p>{{ create_time }}</p>' +
+            '</div>'
+
+    $(function () {
+        $.ajax({
+            url: url + "articleDetail/",
+            type: "get",
+            data: {"id": id},
+            success: function (d) {
+                var detail = d.detail
+                detail.title=d.article.title
+                detail.create_time=d.article.create_time
+                $(".list").append(parseString(temp, detail))
+            }
+        })
+    })
+</script>
+</body>
+</html>
