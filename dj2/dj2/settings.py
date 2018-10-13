@@ -30,6 +30,8 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
+import corsheaders
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',

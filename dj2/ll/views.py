@@ -37,6 +37,8 @@ def page(request):
     return JsonResponse({"data":list(olist),"pageSum":count},safe=False)
 
 def token(request):
-    token = get_token(request)
+    # token = get_token(request)
 
-    return JsonResponse({'token': token})
+    request.session["user"]="user"
+
+    return JsonResponse({'token': "ok"})
