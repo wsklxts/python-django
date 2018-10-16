@@ -10,17 +10,29 @@
 # print(str4)
 
 
-def check_login(func):
-    def inner(request):
-            print(request)
-            return func(request)
-    return inner
+# def check_login(func):
+#     def inner(request):
+#             print(request)
+#             return func(request)
+#     return inner
+#
+# # @check_login
+# def now(a):
+#     print(a)
+#
+# now=check_login(now)
+#
+# now(123)
 
-# @check_login
-def now(a):
-    print(a)
 
-now=check_login(now)
 
-now(123)
+# a = 'ABC'
+# b = a
+# a = 'XYZ'
+# print(b)
 
+a = None
+b = a
+print(b is a)
+print(id(a))
+print(id(None))

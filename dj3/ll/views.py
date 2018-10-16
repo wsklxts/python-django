@@ -15,11 +15,11 @@ def index(request):
 
     for i in articlelist:
         i["create_time"]=i["create_time"].strftime("%Y-%m:%d %H:%I:%S")
-
+    request.session["user"] = "user"
     return JsonResponse({"data":list(articlelist)},safe=False)
 def articleDetail(request):
     id = request.GET.get("id")
-    print(id)
+    print(dir(request.session))
     articlelist = Article.objects.filter(nid=id).select_related('articledetail').first()
     # articledetail=serializers.serialize('json', )
     # print(type(articlelist.articledetail))

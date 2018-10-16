@@ -29,6 +29,7 @@
             type: "get",
             data: {"id": id},
             success: function (d) {
+                console.log(d);
                 var detail = d.detail
                 detail.title=d.article.title
                 detail.create_time=d.article.create_time

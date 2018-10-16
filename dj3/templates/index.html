@@ -4,13 +4,15 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <script src="../static/jquery.js"></script>
+    <script src="../static/common.js"></script>
     <style>
-        *{
-            margin:0;
-            padding:0;
+        * {
+            margin: 0;
+            padding: 0;
             list-style: none;
         }
-        h1{
+
+        h1 {
             font-size: 18px;
         }
     </style>
@@ -22,16 +24,10 @@
                 '<p>{{ create_time }}</p>' +
                 '</div>'
 
-        function parseString(str, obj) {
-            Object.keys(obj).forEach(function (key) {
-                str = str.replace(/\{\{(.*?)\}\}/g, (m, k) => obj[k.trim()])
-            })
-            return str;
-        }
+
 
 
         $(function () {
-            var url = "http://127.0.0.1:8889/"
             $.ajax({
                 url: url + "index/",
                 type: "get",
@@ -41,9 +37,9 @@
                     for (var i = 0; i < data.length; i++) {
                         $(".list").append(parseString(temp, data[i]))
                     }
-                    $(".article").find("a").on("click",function (e) {
+                    $(".article").find("a").on("click", function (e) {
                         var id = $(this).attr("id")
-                        window.location.href="articleDetail.html?id="+id
+                        window.location.href = "articleDetail.html?id=" + id
                     })
                 }
             })
