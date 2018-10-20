@@ -4,6 +4,7 @@ from django.core import serializers
 # Create your views here.
 from django.forms.models import model_to_dict
 from .models import *
+from rest_framework import serializers
 
 def index(request):
 
@@ -17,6 +18,7 @@ def index(request):
         i["create_time"]=i["create_time"].strftime("%Y-%m:%d %H:%I:%S")
     request.session["user"] = "user"
     return JsonResponse({"data":list(articlelist)},safe=False)
+
 def articleDetail(request):
     id = request.GET.get("id")
     print(dir(request.session))
