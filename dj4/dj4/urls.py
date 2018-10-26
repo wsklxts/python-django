@@ -24,7 +24,7 @@ Including another URLconf
 from django.conf.urls import url, include
 from rest_framework import routers
 from restFramework import views
-
+from django.contrib import admin
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'groups', views.GroupViewSet)
@@ -32,8 +32,14 @@ router.register(r'article', views.ArticleViewSet)
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
+from rest_framework.authtoken import views as rest_framework_views
 urlpatterns = [
+    url(r'admin/', admin.site.urls),
     url(r'^', include(router.urls)),
-    url(r'^snippet',views.snippet),
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+    # url(r'^article/$',views.ArticleViewSet.as_view()),
+    url(r'^login/$',views.LoginViewSet.as_view()),
+    url(r'^snippet/$',views.snippet),
+    url(r'^snippet/(?P<pk>\d+)$',views.snippet),
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'^get_auth_token/$', rest_framework_views.obtain_auth_token, name='get_auth_token'),
 ]

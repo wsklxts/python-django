@@ -27,6 +27,19 @@ class Article(models.Model):
         return "%s-%s" % (self.source, self.title)
 
 
+class userInfo(models.Model):
+    name = models.CharField(max_length=32)
+    pwd = models.CharField(max_length=32)
+
+class tokenInfo(models.Model):
+    key = models.CharField(max_length=128)
+    # user = models.OneToOneField(
+    #     userInfo,
+    #     on_delete=models.CASCADE, verbose_name="User"
+    # )
+    user = models.OneToOneField(userInfo,on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+
 class Snippet(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=100, blank=True, default='')

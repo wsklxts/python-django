@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'restFramework',
     'rest_framework',
     "corsheaders",
+    "rest_framework.authtoken",
 ]
 
 CORS_ORIGIN_ALLOW_ALL = True
@@ -119,3 +120,19 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+from rest_framework.authentication import  TokenAuthentication
+from rest_framework.permissions import  IsAuthenticated
+
+REST_FRAMEWORK = {
+   
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    )
+}
+
+# REST_FRAMEWORK = {
+#     'DEFAULT_AUTHENTICATION_CLASSES': (
+#         'restFramework.auth.Authentication',
+#     ),
+# }
