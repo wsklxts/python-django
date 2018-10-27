@@ -33,7 +33,7 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
-
+import xadmin
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'xadminDemo',
     'xadmin',
     'crispy_forms',
+    'reversion',
+
 ]
 
 MIDDLEWARE = [
